@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 
-from client.models import Client
-from client.serializers import ClientSerializer
+from .models import Client
+from .serializers import ClientSerializer
 
 
 class ClientsListView(APIView):
@@ -26,13 +27,19 @@ class ClientView(APIView):
 class ClientDeleteAllView(APIView):
     def delete(self, request):
         Client.objects.all().delete()
-        return Response({"message": "All clients deleted"})
+        if Client.objects.all().count() == 0:
+            return Response({"message": "All clients deleted"})
+        else:
+            return Response({"error": "Something went wrong while deleting all clients"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ClientDeleteView(APIView):
     def delete(self, request, client_id):
-        Client.objects.filter(id=client_id).delete()
-        return Response({"message": "Client deleted"})
+        Client.objects.get(id=client_id).delete()
+        if Client.objects.filter(id=client_id).count() == 0:
+            return Response({"message": "Client deleted"})
+        else:
+            return Response({"error": "Something went wrong while deleting client"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ClientsSeederView(APIView):

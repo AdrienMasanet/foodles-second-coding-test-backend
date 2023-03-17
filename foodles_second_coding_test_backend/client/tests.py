@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from client.models import Client
-from client.views import ClientsListView, ClientView, ClientsSeederView, ClientDeleteAllView, ClientDeleteView
+from .models import Client
+from .views import ClientsListView, ClientView, ClientsSeederView, ClientDeleteAllView, ClientDeleteView
 
 
 # Tests for the client model and ORM
