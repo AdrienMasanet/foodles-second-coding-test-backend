@@ -15,7 +15,9 @@ class ClientsListView(APIView):
 
 class ClientView(APIView):
     def get(self, request, client_id):
-        return Response(Client.objects.filter(id=client_id).values() or {"error": "No clients found"})
+        client = Client.objects.get(id=client_id)
+        serializer = ClientSerializer(client, many=False)
+        return Response(serializer.data or {"error": "No client found for id " + client_id})
 
 
 # Classes below are used for testing purposes only and should not be used in production
