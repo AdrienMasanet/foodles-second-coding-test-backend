@@ -15,9 +15,11 @@ class ClientTestOrmCase(TestCase):
             credits=30,
         ).save()
 
+        client = Client.objects.last()
+
         self.assertEqual(Client.objects.count(), database_clients_count + 1)
-        self.assertEqual(Client.objects.last().email, "client@foodles.fr")
-        self.assertEqual(Client.objects.last().credits, 30)
+        self.assertEqual(client.email, "client@foodles.fr")
+        self.assertEqual(client.credits, 30)
 
     # The clients should be updated when edited in the database
     def test_update_client(self):
@@ -31,8 +33,10 @@ class ClientTestOrmCase(TestCase):
         client.credits = 50
         client.save()
 
-        self.assertEqual(Client.objects.last().email, "client.updated@foodles,fr")
-        self.assertEqual(Client.objects.last().credits, 50)
+        modified_client = Client.objects.last()
+
+        self.assertEqual(modified_client.email, "client.updated@foodles,fr")
+        self.assertEqual(modified_client.credits, 50)
 
     # The clients should be removed from the database when deleted
     def test_delete_client(self):
@@ -70,23 +74,10 @@ class ClientTestViewCase(TestCase):
 
         response = self.client.get("/clients/" + str(Client.objects.last().id))
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["id"], str(Client.objects.last().id))
 
     # All the clients should be deleted
     def test_delete_all_clients(self):
-        client = Client.objects.create(
-            email="client1@foodles.fr",
-            credits=30,
-        ).save()
-
-        client = Client.objects.create(
-            email="client2@foodles.fr",
-            credits=30,
-        ).save()
-
-        client = Client.objects.create(
-            email="client3@foodles.fr",
-            credits=30,
-        ).save()
-
         response = self.client.delete("/clients/delete-all")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(Client.objects.count(), 0)
