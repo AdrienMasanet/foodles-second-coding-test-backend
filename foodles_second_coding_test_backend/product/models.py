@@ -1,5 +1,9 @@
 import uuid
 from django.db import models
+from django.db.models.signals import pre_delete
+from django.dispatch.dispatcher import receiver
+from django.core.files.storage import default_storage
+from django.conf import settings
 
 
 class Product(models.Model):
@@ -14,3 +18,12 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+@receiver(pre_delete, sender=Product)
+# Delete image from storage when product is deleted to prevent orphaned images
+def delete_product_image(sender, instance, **kwargs):
+    if instance.image:
+        image_path = str(instance.image)
+        full_path = f"{settings.MEDIA_ROOT}/{image_path}"
+        default_storage.delete(full_path)
