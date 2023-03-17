@@ -19,6 +19,7 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - DJANGO_SECRET=devsecret
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
