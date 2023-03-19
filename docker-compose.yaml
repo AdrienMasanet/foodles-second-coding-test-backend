@@ -20,6 +20,7 @@ services:
       - "8000:8000"
     environment:
       - DJANGO_SECRET=devsecret
+      - FRONTEND_URL=http://localhost:3000
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
