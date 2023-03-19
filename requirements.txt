@@ -3,3 +3,6 @@ psycopg2 >= 2.8
 djangorestframework >= 3, < 4
 pillow >= 9
 django-cors-headers >= 3
+django-extensions >= 3
+Werkzeug >= 2
+pyOpenSSL >= 23

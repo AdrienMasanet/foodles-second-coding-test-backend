@@ -6,3 +6,6 @@ media/
 
 # Macos DS_Store files
 **/.DS_Store
+
+# SSL certificates
+certs/

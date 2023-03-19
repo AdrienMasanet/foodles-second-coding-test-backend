@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET")
 DEBUG = True
 
 # Allow localhost and docker container to make requests
-ALLOWED_HOSTS = ["localhost", "0.0.0.0"]
+ALLOWED_HOSTS = ["127.0.0.1", "0.0.0.0"]
 
 
 # Application definition
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
+    "django_extensions",
     "client",
     "product",
     "order",
@@ -143,8 +144,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
 # CORS
-
-CORS_ORIGIN_ALLOW_ALL = False
 
 CORS_ALLOW_CREDENTIALS = True
 

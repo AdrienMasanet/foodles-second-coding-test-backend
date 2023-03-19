@@ -13,14 +13,14 @@ services:
       - POSTGRES_PASSWORD=postgres
   api:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver_plus 0.0.0.0:8000 --cert-file ./certs/cert.pem --key-file ./certs/key.pem
     volumes:
       - ./foodles_second_coding_test_backend:/code
     ports:
       - "8000:8000"
     environment:
       - DJANGO_SECRET=devsecret
-      - FRONTEND_URL=http://localhost:3000
+      - FRONTEND_URL=https://127.0.0.1:3000
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
