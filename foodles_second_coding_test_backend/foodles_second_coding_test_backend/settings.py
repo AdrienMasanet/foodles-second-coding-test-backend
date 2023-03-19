@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "client",
     "product",
+    "order",
 ]
 
 MIDDLEWARE = [
@@ -149,4 +150,12 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     os.environ.get("FRONTEND_URL"),
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "OPTIONS",
 ]
