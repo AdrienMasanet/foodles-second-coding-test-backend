@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET")
 DEBUG = True
 
 # Allow localhost and docker container to make requests
-ALLOWED_HOSTS = ["127.0.0.1", "0.0.0.0"]
+ALLOWED_HOSTS = [os.environ.get("FRONTEND_DOMAIN"), "0.0.0.0"]
 
 
 # Application definition
