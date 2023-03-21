@@ -83,7 +83,7 @@ class ClientsSeederView(APIView):
     def post(self, request):
         Client.objects.create(
             name="Jon",
-            email="jons_now@longnight.fr",
+            email="jon_snow@longnight.fr",
             credits=0,
         ).save()
         Client.objects.create(
@@ -115,6 +115,26 @@ class ClientsSeederView(APIView):
             name="Shepard",
             email="mass-effect@reaper.com",
             credits=100,
+        ).save()
+        Client.objects.create(
+            name="Potter",
+            email="harry.potter@hogwarts.en",
+            credits=35,
+        ).save()
+        Client.objects.create(
+            name="Rick",
+            email="ricksanchez@multi.verse",
+            credits=200,
+        ).save()
+        Client.objects.create(
+            name="Kratos",
+            email="mrkratos@gow.gr",
+            credits=0,
+        ).save()
+        Client.objects.create(
+            name="Elliot",
+            email="anonymous@robot.mr",
+            credits=321,
         ).save()
 
         return Response({"message": "Clients created", "clients": Client.objects.all().values()})
