@@ -41,11 +41,18 @@ class OrderSerializer(serializers.ModelSerializer):
                 order.delete()
                 raise serializers.ValidationError("Product not found for id " + product_id)
 
+            # If product stock is inferior to the order quantity, delete the order and raise an error
+            if product.stock < quantity:
+                order.delete()
+                raise serializers.ValidationError("Available stock for product " + product_id + " is strictly inferior to the order quantity")
+
             # Create and save a OrderProduct in the database with the affiliate order, product and quantity
             order_product = OrderProduct(order=order, product=product, quantity=quantity)
             order_product.save()
 
+        # Save the order to update the total price depending on the products freshly added
         order.save()
+
         # Check if the total price of the order is inferior or equal to the client's credit
         if order.total_price > client.credits:
             # If not, delete the order and raise an error
@@ -56,6 +63,12 @@ class OrderSerializer(serializers.ModelSerializer):
         # Substract the total price of the order to the client's credit
         client.credits -= order.total_price
         client.save()
+
+        # Substract the quantity of each product from the product's stock
+        for product_id, quantity in cart_data.items():
+            product = Product.objects.get(id=product_id)
+            product.stock -= quantity
+            product.save()
 
         # Set status from PENDING to PAID and save the order
         order.status = "PAID"
