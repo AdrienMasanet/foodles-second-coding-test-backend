@@ -1,91 +1,64 @@
+from decimal import Decimal
 from django.test import TestCase
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient
 
 from .models import Client
-from .views import ClientsListView, ClientView, ClientsSeederView, ClientDeleteAllView, ClientDeleteView
+from .serializers import ClientSerializer, ClientExplicitSerializer
 
 
-# Tests for the client model and ORM
-class ClientTestOrmCase(TestCase):
-    # The clients should be created with the correct attributes
-    def test_create_client(self):
-        database_clients_count = Client.objects.count()
+class ClientTestCase(TestCase):
+    def setUp(self):
+        self.api_client = APIClient()
 
-        client = Client.objects.create(
-            name="Client",
-            email="client@foodles.fr",
-            credits=30,
-        ).save()
+        # Create a test client
+        self.test_client = Client.objects.create(name="Client", email="test@test.com", credits=Decimal("100.00"))
 
-        client = Client.objects.last()
+    # Model logic tests
 
-        self.assertEqual(Client.objects.count(), database_clients_count + 1)
-        self.assertEqual(client.name, "Client")
-        self.assertEqual(client.email, "client@foodles.fr")
-        self.assertEqual(client.credits, 30)
+    def test_client_create(self):
+        Client.objects.create(name="Client 2", email="test2@test.com", credits=Decimal("100.00"))
 
-    # The clients should be updated when edited in the database
-    def test_update_client(self):
-        client = Client.objects.create(
-            name="Client",
-            email="client@foodles.fr",
-            credits=30,
-        ).save()
+        client = Client.objects.get(email="test2@test.com")
 
-        client = Client.objects.last()
-        client.name = "Client"
-        client.email = "client.updated@foodles,fr"
-        client.credits = 50
-        client.save()
+        self.assertIsNotNone(client)
+        self.assertEqual(Client.objects.count(), 2)
+        self.assertEqual(client.name, "Client 2")
+        self.assertEqual(client.email, "test2@test.com")
+        self.assertEqual(client.credits, Decimal("100.00"))
 
-        modified_client = Client.objects.last()
-
-        self.assertEqual(modified_client.name, "Client")
-        self.assertEqual(modified_client.email, "client.updated@foodles,fr")
-        self.assertEqual(modified_client.credits, 50)
-
-    # The clients should be removed from the database when deleted
-    def test_delete_client(self):
-        client = Client.objects.create(
-            name="Client",
-            email="client@foodles.fr",
-            credits=30,
-        ).save()
-
-        database_clients_count = Client.objects.count()
-
-        client = Client.objects.last()
         client.delete()
 
-        self.assertEqual(Client.objects.count(), database_clients_count - 1)
+    def test_client_tostring(self):
+        client = Client.objects.create(name="Client 2", email="test2@test.com", credits=Decimal("100.00"))
 
+        self.assertEqual(str(client), "test2@test.com")
 
-# Tests for the client views
-class ClientTestViewCase(TestCase):
-    # The clients should be listed
-    def test_list_clients(self):
-        client = Client.objects.create(
-            name="Client",
-            email="client@foodles.fr",
-            credits=30,
-        ).save()
+        client.delete()
 
-        response = self.client.get("/clients/")
-        self.assertEqual(response.status_code, 200)
+    # Views tests
 
-    # A client must be viewable
-    def test_view_client(self):
-        client = Client.objects.create(
-            name="Client",
-            email="client@foodles.fr",
-            credits=30,
-        ).save()
+    def test_clients_list_view(self):
+        response = self.api_client.get(reverse("clients-list"))
 
-        response = self.client.get("/clients/" + str(Client.objects.last().id))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["id"], str(Client.objects.last().id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], str(self.test_client.id))
+        self.assertEqual(response.data[0]["name"], "Client")
+        self.assertEqual(response.data[0]["email"], "test@test.com")
+        self.assertEqual(response.data[0]["credits"], "100.00")
+        self.assertNotIn("createdAt", response.data[0])
+        self.assertNotIn("updatedAt", response.data[0])
 
-    # All the clients should be deleted
-    def test_delete_all_clients(self):
-        response = self.client.delete("/clients/delete-all")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Client.objects.count(), 0)
+    def test_client_login_view(self):
+        response = self.api_client.post(reverse("client-login"), {"id": str(self.test_client.id)})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], str(self.test_client.id))
+        self.assertEqual(response.data["email"], "test@test.com")
+        self.assertEqual(response.data["credits"], "100.00")
+        self.assertIn("createdAt", response.data)
+        self.assertIn("updatedAt", response.data)
+        self.assertIn("client_session_token", response.cookies)
+        self.assertIsNotNone(response.cookies["client_session_token"])
