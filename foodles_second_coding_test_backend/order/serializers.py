@@ -20,11 +20,11 @@ class OrderSerializer(serializers.ModelSerializer):
         client_id = self.context.get("client_id")
         cart_data = self.context.get("cart_data")
 
-        # Get the client in database
-        client = Client.objects.get(id=client_id)
-
-        # If client is not found, raise an error
-        if not client:
+        try:
+            # Get the client in database
+            client = Client.objects.get(id=client_id)
+        except Client.DoesNotExist:
+            # If client is not found, raise an error
             raise serializers.ValidationError("Client not found")
 
         # Create and save the order in the database for this client
