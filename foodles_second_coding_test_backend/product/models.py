@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch.dispatcher import receiver
 from django.core.files.storage import default_storage
+from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 
@@ -33,8 +34,12 @@ def delete_product_image(sender, instance, **kwargs):
 # Delete image from storage when product already exists and its image has been updated to prevent orphaned images
 def delete_old_product_image(sender, instance, **kwargs):
     if instance.pk:
-        old_product = Product.objects.get(pk=instance.pk)
-        if old_product.image and old_product.image != instance.image:
+        try:
+            old_product = Product.objects.get(pk=instance.pk)
+        except ObjectDoesNotExist:
+            old_product = None
+
+        if old_product and old_product.image and old_product.image != instance.image:
             image_path = str(old_product.image)
             full_path = f"{settings.MEDIA_ROOT}/{image_path}"
             default_storage.delete(full_path)
