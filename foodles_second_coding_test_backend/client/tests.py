@@ -11,6 +11,7 @@ class ClientTestOrmCase(TestCase):
         database_clients_count = Client.objects.count()
 
         client = Client.objects.create(
+            name="Client",
             email="client@foodles.fr",
             credits=30,
         ).save()
@@ -18,29 +19,34 @@ class ClientTestOrmCase(TestCase):
         client = Client.objects.last()
 
         self.assertEqual(Client.objects.count(), database_clients_count + 1)
+        self.assertEqual(client.name, "Client")
         self.assertEqual(client.email, "client@foodles.fr")
         self.assertEqual(client.credits, 30)
 
     # The clients should be updated when edited in the database
     def test_update_client(self):
         client = Client.objects.create(
+            name="Client",
             email="client@foodles.fr",
             credits=30,
         ).save()
 
         client = Client.objects.last()
+        client.name = "Client"
         client.email = "client.updated@foodles,fr"
         client.credits = 50
         client.save()
 
         modified_client = Client.objects.last()
 
+        self.assertEqual(modified_client.name, "Client")
         self.assertEqual(modified_client.email, "client.updated@foodles,fr")
         self.assertEqual(modified_client.credits, 50)
 
     # The clients should be removed from the database when deleted
     def test_delete_client(self):
         client = Client.objects.create(
+            name="Client",
             email="client@foodles.fr",
             credits=30,
         ).save()
@@ -58,6 +64,7 @@ class ClientTestViewCase(TestCase):
     # The clients should be listed
     def test_list_clients(self):
         client = Client.objects.create(
+            name="Client",
             email="client@foodles.fr",
             credits=30,
         ).save()
@@ -68,6 +75,7 @@ class ClientTestViewCase(TestCase):
     # A client must be viewable
     def test_view_client(self):
         client = Client.objects.create(
+            name="Client",
             email="client@foodles.fr",
             credits=30,
         ).save()
