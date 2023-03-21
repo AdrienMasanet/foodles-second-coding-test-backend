@@ -1,10 +1,11 @@
+import uuid
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Client
-from .serializers import ClientSerializer
+from .serializers import ClientSerializer, ClientExplicitSerializer
 
 
 class ClientsListView(APIView):
@@ -14,14 +15,50 @@ class ClientsListView(APIView):
         return Response(serializer.data or {"error": "No clients found"})
 
 
+class ClientLoginView(APIView):
+    def post(self, request):
+        client_id = request.data.get("id")
+        if client_id:
+            client = Client.objects.get(id=client_id)
+            if client:
+                client.session_token = uuid.uuid4().hex[:255]
+                client.save()
+                if client.session_token:
+                    response = Response(ClientExplicitSerializer(client, many=False).data)
+                    response.set_cookie("client_session_token", client.session_token, max_age=None, expires=None, path="/", secure=True, httponly=True, samesite="None")  # TODO: Change secure to True in production
+                    return response
+                else:
+                    return Response({"error": "Something went wrong while logging in client"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                return Response({"error": "No client found for id " + client_id}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"error": "No id provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ClientLoggedInView(APIView):
+    def get(self, request):
+        client_session_token = request.COOKIES.get("client_session_token")
+        if client_session_token:
+            try:
+                client = Client.objects.get(session_token=client_session_token)
+            except Client.DoesNotExist:
+                client = None
+            if client:
+                return Response(ClientExplicitSerializer(client, many=False).data)
+            else:
+                return Response({"error": "No client found for session token " + client_session_token}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"error": "No session token provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Classes below are used for testing purposes only and should not be used in production
+
+
 class ClientView(APIView):
     def get(self, request, client_id):
         client = Client.objects.get(id=client_id)
         serializer = ClientSerializer(client, many=False)
-        return Response(serializer.data or {"error": "No client found for id " + client_id})
-
-
-# Classes below are used for testing purposes only and should not be used in production
+        return Response(serializer.data or {"error": "No client found for id " + client_id}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ClientDeleteAllView(APIView):
@@ -45,31 +82,38 @@ class ClientDeleteView(APIView):
 class ClientsSeederView(APIView):
     def post(self, request):
         Client.objects.create(
-            email="client1@foodles.fr",
+            name="Jon",
+            email="jons_now@longnight.fr",
             credits=0,
         ).save()
         Client.objects.create(
-            email="client2@foodles.fr",
+            name="Anakin",
+            email="skywalker@darkside.com",
             credits=10,
         ).save()
         Client.objects.create(
-            email="client3@foodles.fr",
+            name="Qui-Gon",
+            email="quigonjinn3@foodles.net",
             credits=15,
         ).save()
         Client.objects.create(
-            email="client4@foodles.fr",
+            name="Jotaro",
+            email="joestar@yareyaredaze.jp",
             credits=30,
         ).save()
         Client.objects.create(
-            email="client5@foodles.fr",
+            name="Tyrion",
+            email="rains.of.castamere@debpts.com",
             credits=50,
         ).save()
         Client.objects.create(
-            email="client6@foodles.fr",
-            credits=70,
+            name="Songoku",
+            email="kamehameka@dragonball.jp",
+            credits=22.50,
         ).save()
         Client.objects.create(
-            email="client7@foodles.fr",
+            name="Shepard",
+            email="mass-effect@reaper.com",
             credits=100,
         ).save()
 
