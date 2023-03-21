@@ -25,7 +25,7 @@ class ClientLoginView(APIView):
                 client.save()
                 if client.session_token:
                     response = Response(ClientExplicitSerializer(client, many=False).data)
-                    response.set_cookie("client_session_token", client.session_token, max_age=None, expires=None, path="/", secure=True, httponly=True, samesite="None")  # TODO: Change secure to True in production
+                    response.set_cookie("client_session_token", client.session_token, max_age=None, expires=None, path="/", secure=True, httponly=True, samesite="None")
                     return response
                 else:
                     return Response({"error": "Something went wrong while logging in client"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
