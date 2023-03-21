@@ -32,38 +32,3 @@ class OrdersNewView(APIView):
                 return Response({"error": "Invalid client session token"}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response({"error": "Client session token not found"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-# Classes below are used for testing purposes only and should not be used in production
-
-
-class OrdersListView(APIView):
-    def get(self, request):
-        orders = Order.objects.all()
-        serializer = OrderSerializer(orders, many=True)
-        return Response(serializer.data or {"error": "No orders found"})
-
-
-class OrderView(APIView):
-    def get(self, request, order_id):
-        order = Order.objects.get(id=order_id)
-        serializer = OrderSerializer(order, many=False)
-        return Response(serializer.data or {"error": "No order found for id " + order_id})
-
-
-class OrderDeleteAllView(APIView):
-    def delete(self, request):
-        Order.objects.all().delete()
-        if Order.objects.all().count() == 0:
-            return Response({"message": "All orders deleted"})
-        else:
-            return Response({"error": "Something went wrong while deleting all orders"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class OrderDeleteView(APIView):
-    def delete(self, request, order_id):
-        Order.objects.get(id=order_id).delete()
-        if Order.objects.filter(id=order_id).count() == 0:
-            return Response({"message": "Order deleted"})
-        else:
-            return Response({"error": "Something went wrong while deleting order"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -19,7 +19,10 @@ class ClientLoginView(APIView):
     def post(self, request):
         client_id = request.data.get("id")
         if client_id:
-            client = Client.objects.get(id=client_id)
+            try:
+                client = Client.objects.get(id=client_id)
+            except Client.DoesNotExist:
+                return Response({"error": "No client found for id " + client_id}, status=status.HTTP_404_NOT_FOUND)
             if client:
                 client.session_token = uuid.uuid4().hex[:255]
                 client.save()
@@ -29,8 +32,6 @@ class ClientLoginView(APIView):
                     return response
                 else:
                     return Response({"error": "Something went wrong while logging in client"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            else:
-                return Response({"error": "No client found for id " + client_id}, status=status.HTTP_404_NOT_FOUND)
         else:
             return Response({"error": "No id provided"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -52,31 +53,6 @@ class ClientLoggedInView(APIView):
 
 
 # Classes below are used for testing purposes only and should not be used in production
-
-
-class ClientView(APIView):
-    def get(self, request, client_id):
-        client = Client.objects.get(id=client_id)
-        serializer = ClientSerializer(client, many=False)
-        return Response(serializer.data or {"error": "No client found for id " + client_id}, status=status.HTTP_404_NOT_FOUND)
-
-
-class ClientDeleteAllView(APIView):
-    def delete(self, request):
-        Client.objects.all().delete()
-        if Client.objects.all().count() == 0:
-            return Response({"message": "All clients deleted"})
-        else:
-            return Response({"error": "Something went wrong while deleting all clients"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class ClientDeleteView(APIView):
-    def delete(self, request, client_id):
-        Client.objects.get(id=client_id).delete()
-        if Client.objects.filter(id=client_id).count() == 0:
-            return Response({"message": "Client deleted"})
-        else:
-            return Response({"error": "Something went wrong while deleting client"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ClientsSeederView(APIView):
