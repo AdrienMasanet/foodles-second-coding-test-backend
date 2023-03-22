@@ -1,4 +1,4 @@
-# Hello 😊 This is the back-end the second coding test for Foodles.
+# Hello 😊 This is the back-end for the second coding test for Foodles.
 
 ## How to use
 
