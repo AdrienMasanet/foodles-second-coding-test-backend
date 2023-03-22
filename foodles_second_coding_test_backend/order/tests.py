@@ -28,6 +28,10 @@ class OrderTestCase(TestCase):
         self.test_product3 = Product.objects.create(name="Test Product 3", price=Decimal("30.00"), description="Test product 3 description", image=image_file, stock=0)
         self.test_product4 = Product.objects.create(name="Test Product 3", price=Decimal("200.00"), description="Test product 3 description", image=image_file, stock=2)
 
+    def tearDown(self):
+        Client.objects.all().delete()
+        Product.objects.all().delete()
+
     # Model logic tests
 
     def test_order_create(self):

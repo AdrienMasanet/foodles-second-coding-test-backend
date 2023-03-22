@@ -22,6 +22,9 @@ class ProductTestCase(TestCase):
         # Create a test product
         self.test_product = Product.objects.create(name="Test Product", price=9.99, description="Test product description", image=image_file, stock=5)
 
+    def tearDown(self):
+        Product.objects.all().delete()
+
     # Model logic tests
 
     def test_product_create(self):
@@ -60,18 +63,14 @@ class ProductTestCase(TestCase):
         initial_image_path = self.test_product.image.path
 
         # Update the product image
-        new_image_data = open(os.path.join(os.path.dirname(__file__), "test_images", "dish.jpg"), "rb").read()
-        new_image_file = SimpleUploadedFile(name="dish.jpg", content=new_image_data, content_type="image/jpeg")
+        new_image_data = open(os.path.join(os.path.dirname(__file__), "test_images", "dish2.jpg"), "rb").read()
+        new_image_file = SimpleUploadedFile(name="dish2.jpg", content=new_image_data, content_type="image/jpeg")
         self.test_product.image = new_image_file
         self.test_product.save()
 
-        # Check if the initial image file is deleted
-        self.assertFalse(os.path.exists(initial_image_path))
+        self.assertFalse(os.path.exists(initial_image_path))  # Check if the initial image file is deleted
+        self.assertTrue(os.path.exists(self.test_product.image.path))  # Check if the new image file exists
 
-        # Check if the new image file exists
-        self.assertTrue(os.path.exists(self.test_product.image.path))
-
-        # Clean up
         self.test_product.delete()
 
     # Views tests

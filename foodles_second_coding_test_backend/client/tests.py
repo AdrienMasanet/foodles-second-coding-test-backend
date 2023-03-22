@@ -15,6 +15,9 @@ class ClientTestCase(TestCase):
         # Create a test client
         self.test_client = Client.objects.create(name="Client", email="test@test.com", credits=Decimal("100.00"))
 
+    def tearDown(self):
+        Client.objects.all().delete()
+
     # Model logic tests
 
     def test_client_create(self):
