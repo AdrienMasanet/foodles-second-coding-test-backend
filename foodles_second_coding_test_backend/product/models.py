@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from django.db.models.signals import pre_delete, pre_save
+from django.db.models.signals import post_delete, pre_save
 from django.dispatch.dispatcher import receiver
 from django.core.files.storage import default_storage
 from django.core.exceptions import ObjectDoesNotExist
@@ -21,7 +21,7 @@ class Product(models.Model):
         return self.name
 
 
-@receiver(pre_delete, sender=Product)
+@receiver(post_delete, sender=Product)
 # Delete image from storage when product is deleted to prevent orphaned images
 def delete_product_image(sender, instance, **kwargs):
     if instance.image:
