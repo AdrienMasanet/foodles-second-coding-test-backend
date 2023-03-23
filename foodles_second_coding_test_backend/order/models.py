@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 
 from client.models import Client
@@ -25,7 +25,7 @@ class Order(models.Model):
         return self.client.email + " - " + self.status + " - " + str(self.total_price) + "€"
 
 
-@receiver(pre_save, sender=Order)
+@receiver(post_save, sender=Order)
 # Calculate total price of order automatically when order is saved
 def calculate_total_price(sender, instance, **kwargs):
     total_price = 0
