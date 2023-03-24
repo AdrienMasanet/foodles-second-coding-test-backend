@@ -26,8 +26,8 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Allow localhost and docker container to make requests
-ALLOWED_HOSTS = [os.environ.get("FRONTEND_DOMAIN"), "0.0.0.0"]
+# Allow front-end domain and localhost to make requests to the Django server
+ALLOWED_HOSTS = [os.environ.get("FRONTEND_DOMAIN"), "localhost"]
 
 
 # Application definition

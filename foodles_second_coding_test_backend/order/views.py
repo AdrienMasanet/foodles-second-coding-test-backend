@@ -23,7 +23,7 @@ class OrdersNewView(APIView):
                 # Call the serializer to handle the logic of creating the order object and adding the products to it
                 serializer = OrderSerializer(context={"client_id": client.id, "cart_data": cart_data}, data={})
                 if serializer.is_valid():
-                    # If the serializer is valid, save the order and return the client'n new credits
+                    # If the serializer is valid, save the order and return the client new credits
                     clientNewCreditsAmount = serializer.save()
                     return Response({"clientNewCreditsAmount": clientNewCreditsAmount})
                 else:
